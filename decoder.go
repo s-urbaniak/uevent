@@ -34,6 +34,7 @@ func (d *Decoder) Decode() (*Uevent, error) {
 		Keys: map[string]string{},
 	}
 
+loop:
 	for {
 		s, err := d.r.ReadString(0x00)
 		if err != nil {
@@ -63,11 +64,10 @@ func (d *Decoder) Decode() (*Uevent, error) {
 				ev.Subsystem = v
 			case "SEQNUM":
 				ev.Seqnum = v
-				goto done
+				break loop
 			}
 		}
 	}
 
-done:
 	return ev, nil
 }
