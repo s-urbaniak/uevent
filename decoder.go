@@ -11,14 +11,14 @@ import (
 type Uevent struct {
 	Header string
 
-	// default uevent keys as per kobject_uevent.c
+	// default uevent variables as per kobject_uevent.c
 	Action    string
 	Devpath   string
 	Subsystem string
 	Seqnum    string
 
-	// A key/value map of all keys
-	Keys map[string]string
+	// A key/value map of all variables
+	Vars map[string]string
 }
 
 // Decoder decodes uevents from a reader.
@@ -36,7 +36,7 @@ func NewDecoder(r io.Reader) *Decoder {
 // It is meant to be used in a loop.
 func (d *Decoder) Decode() (*Uevent, error) {
 	ev := &Uevent{
-		Keys: map[string]string{},
+		Vars: map[string]string{},
 	}
 
 	h, err := d.next()
@@ -58,7 +58,7 @@ loop:
 		}
 
 		k, v := kv[:i], kv[i+1:]
-		ev.Keys[k] = v
+		ev.Vars[k] = v
 
 		switch k {
 		case "ACTION":
