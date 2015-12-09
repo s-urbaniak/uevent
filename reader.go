@@ -29,8 +29,9 @@ func (r Reader) Close() error {
 	return syscall.Close(r.fd)
 }
 
-// NewReader returns a new uevent reader.
-// It opens a raw AF_NETLINK socket and binds it to the PID of the calling program.
+// NewReader returns a new netlink socket reader.
+// It opens a raw AF_NETLINK domain socket using the uevent protocol
+// and binds it to the PID of the calling program.
 func NewReader() (io.ReadCloser, error) {
 	fd, err := syscall.Socket(
 		syscall.AF_NETLINK,
