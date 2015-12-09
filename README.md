@@ -1,6 +1,6 @@
-# Golang Uevent bindings
+# Golang uevent bindings
 
-This repository hosts golang uevent bindings for receiving Linux kernel events.
+This golang library implements uevent bindings for reading and decoding Linux kernel udev events.
 
 ## Usage
 

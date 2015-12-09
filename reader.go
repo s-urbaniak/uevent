@@ -19,12 +19,12 @@ type Reader struct {
 
 var _ io.ReadCloser = (*Reader)(nil)
 
-// Read reads from the underlying socket.
+// Read reads from the underlying netlink socket.
 func (r Reader) Read(p []byte) (n int, err error) {
 	return syscall.Read(r.fd, p)
 }
 
-// Close closes the underlying socket.
+// Close closes the underlying netlink socket.
 func (r Reader) Close() error {
 	return syscall.Close(r.fd)
 }
