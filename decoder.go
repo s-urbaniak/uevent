@@ -57,7 +57,7 @@ loop:
 			return nil, errors.New("error decoding uevent: unknown format")
 		}
 
-		k, v := kv[:i], kv[i+1:]
+		k, v := kv[:i], kv[i+1:len(kv)-1] // last char is zero (0)
 		ev.Vars[k] = v
 
 		switch k {
