@@ -38,10 +38,15 @@ func NewReader() (io.ReadCloser, error) {
 		syscall.SOCK_RAW,
 		NETLINK_KOBJECT_UEVENT,
 	)
-
 	if err != nil {
 		return nil, err
 	}
+
+	// os/exec does not close existing file descriptors by convention as per
+	// https://github.com/golang/go/blob/release-branch.go1.14/src/syscall/exec_linux.go#L483
+	// so explicitly mark this file descriptor as close-on-exec to avoid leaking
+	// it to child processes accidentally.
+	syscall.CloseOnExec(fd)
 
 	nl := syscall.SockaddrNetlink{
 		Family: syscall.AF_NETLINK,
