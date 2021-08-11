@@ -14,18 +14,36 @@ const NETLINK_KOBJECT_UEVENT = 15
 
 // Reader implements reading uevents from an AF_NETLINK socket.
 type Reader struct {
-	fd int // the file descriptor of the socket.
+	fd     int // the file descriptor of the socket.
+	closed bool
 }
 
 var _ io.ReadCloser = (*Reader)(nil)
 
 // Read reads from the underlying netlink socket.
-func (r Reader) Read(p []byte) (n int, err error) {
-	return syscall.Read(r.fd, p)
+// Trying to read from a closed reader return io.EOF.
+func (r *Reader) Read(p []byte) (n int, err error) {
+	n, err = syscall.Read(r.fd, p)
+	// If the underlying socket has been closed with Reader.Close()
+	// syscall.Read() returns a -1 and an EBADF error.
+	// This Read() function is called by bufio.Reader.ReadString() that
+	// panics if a negative number of read bytes is returned.
+	// Since the EBADF errors could either mean that the file
+	// descriptor is not valid or not open for reading we keep track
+	// if it's actually closed or not and return an io.EOF.
+	if r.closed {
+		return 0, io.EOF
+	}
+	return
 }
 
 // Close closes the underlying netlink socket.
-func (r Reader) Close() error {
+func (r *Reader) Close() error {
+	if r.closed {
+		// Already closed, nothing to do
+		return nil
+	}
+	r.closed = true
 	return syscall.Close(r.fd)
 }
 
@@ -50,5 +68,5 @@ func NewReader() (io.ReadCloser, error) {
 	}
 
 	err = syscall.Bind(fd, &nl)
-	return &Reader{fd}, err
+	return &Reader{fd: fd}, err
 }
